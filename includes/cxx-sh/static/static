@@ -1,0 +1,6 @@
+#pragma once
+
+namespace shell {
+    template <typename _Tp>
+    using cr = const _Tp&; // const ref
+};
