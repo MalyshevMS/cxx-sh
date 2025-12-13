@@ -31,19 +31,22 @@ namespace shell {
         int clear   (CXXSH_COMMAND_ARGS);
         int exit    (CXXSH_COMMAND_ARGS);
         int alias   (CXXSH_COMMAND_ARGS);
+        int system  (CXXSH_COMMAND_ARGS);
     
         inline std::vector<cmd_t> names = {
             "echo",
             "clear",
             "exit",
-            "alias"
+            "alias",
+            "system"
         };
 
         inline std::vector<command_f> functions = {
             echo,
             clear,
             exit,
-            alias
+            alias,
+            system
         };
     };
 };

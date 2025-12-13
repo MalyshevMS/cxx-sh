@@ -14,11 +14,14 @@ namespace shell {
         line_t line;
         std::vector<std::string> parsed;
 
-        static std::vector<std::string> split(cr<line_t> str, char sep);
     public:
+        static std::vector<std::string> split(cr<line_t> str, char sep = ' ');
+        static line_t join(std::vector<std::string> strs, char sep = ' ');
+
         Parser(cr<line_t> line);
         
         line_t string() const { return line; };
+        line_t other(size_t spaces_count = 1) const; // whole line except the number of spaces given (default 1)
         cmd_t command() const;
         args_t args() const;
         flags_t flags() const;

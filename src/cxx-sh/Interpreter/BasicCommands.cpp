@@ -47,24 +47,25 @@ int shell::basic::clear(CXXSH_COMMAND_ARGS) {
 }
 
 int shell::basic::alias(CXXSH_COMMAND_ARGS) {
-    std::string alias_cmd;
+    std::string alias_cmd = parse(line).other(2);
     std::string alias_name = args[0];
-
-    auto l = line;
-    int space_cnt = 0;
-    for (int i = 0; i < l.size(); i++) {
-        if (l[i] == ' ') {
-            space_cnt++;
-            if (space_cnt == 2) {
-                alias_cmd = line.substr(++i);
-                break;
-            }
-        }
-    }
+    
     sh->add_command(alias_name, [alias_cmd](CXXSH_COMMAND_ARGS){
+        if (args.size() > 0)
+        return sh->exec(alias_cmd + " " + Parser::join(args));
+        else
         return sh->exec(alias_cmd);
     });
     
     sh->writeln("Aliased '" + alias_name + "' to '" + alias_cmd + "'.");
     return 0;
+}
+
+int shell::basic::system(CXXSH_COMMAND_ARGS) {
+    if (args.size() > 0)
+    return std::system(parse(line).other().c_str());
+    else {
+        sh->writeln("Too few arguments.");
+        return 1;
+    }
 }

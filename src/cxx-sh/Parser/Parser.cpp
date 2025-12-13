@@ -1,6 +1,7 @@
 #include <cxx-sh/Parser/Parser.hpp>
+#include <sstream>
 
-std::vector<std::string> shell::Parser::split(cr<line_t> str, char sep = ' ') {
+std::vector<std::string> shell::Parser::split(cr<line_t> str, char sep) {
     std::vector<std::string> result;
     std::string current;
 
@@ -57,4 +58,25 @@ shell::flags_t shell::Parser::flags() const {
     }
 
     return result;
+}
+
+shell::line_t shell::Parser::other(size_t spaces_count) const {
+    std::string result;
+    int space_cnt = 0;
+    for (int i = 0; i < line.size(); i++) {
+        if (line[i] == ' ') {
+            space_cnt++;
+            if (space_cnt == spaces_count) {
+                result = line.substr(++i);
+                return result;
+            }
+        }
+    }
+    return line;
+}
+
+shell::line_t shell::Parser::join(std::vector<std::string> strs, char sep) {
+    std::stringstream ss;
+    for (auto i : strs) ss << i << sep;
+    return ss.str();
 }

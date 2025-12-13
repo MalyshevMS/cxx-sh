@@ -17,7 +17,7 @@ int shell::Interpreter::exec(cr<line_t> line) {
     if (it != command_map.end()) {
         return it->second(this, prs.args(), prs.flags(), prs.string());
     } else {
-        writeln("Command not found: '" + line + "'.");
+        writeln("Command not found: '" + prs.command() + "'.");
         return 127;
     }
 }
