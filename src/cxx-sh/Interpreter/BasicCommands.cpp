@@ -1,0 +1,70 @@
+#include <cxx-sh/Interpreter/Interpreter.hpp>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+int shell::basic::echo(CXXSH_COMMAND_ARGS) {
+    sh->stream() << std::flush;
+    for (auto a : args) {
+        sh->write(a + ' ');
+    }
+    sh->writeln();
+
+    return 0;
+}
+
+int shell::basic::exit(CXXSH_COMMAND_ARGS) {
+    sh->writeln("Exiting interpreter...");
+    sh->exit();
+    return 0;
+}
+
+int shell::basic::clear(CXXSH_COMMAND_ARGS) {
+    auto& os = sh->stream();
+    auto cls = [](){
+        #ifdef _WIN32
+            std::system("CLS");
+        #else
+            std::system("clear");
+        #endif
+    };
+    
+    if (auto oss = dynamic_cast<std::ostringstream*>(&os)) {
+        oss->str("");
+    } else if (&os == &std::cout) {
+        os << "\033[2J\033[H"; // set cursor pos to 0
+        cls();
+    } else if (&os == &std::cerr) {
+        os << "\033[2J\033[H";
+        cls();
+    } else {
+        sh->write("Unknown or unsupported stream type.");
+        os.clear();
+        return 1;
+    }
+    os.clear();
+    return 0;
+}
+
+int shell::basic::alias(CXXSH_COMMAND_ARGS) {
+    std::string alias_cmd;
+    std::string alias_name = args[0];
+
+    auto l = line;
+    int space_cnt = 0;
+    for (int i = 0; i < l.size(); i++) {
+        if (l[i] == ' ') {
+            space_cnt++;
+            if (space_cnt == 2) {
+                alias_cmd = line.substr(++i);
+                break;
+            }
+        }
+    }
+    sh->add_command(alias_name, [alias_cmd](CXXSH_COMMAND_ARGS){
+        return sh->exec(alias_cmd);
+    });
+    
+    sh->writeln("Aliased '" + alias_name + "' to '" + alias_cmd + "'.");
+    return 0;
+}
