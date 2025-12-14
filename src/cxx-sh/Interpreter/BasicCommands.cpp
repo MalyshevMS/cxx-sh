@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 
-int shell::basic::echo(CXXSH_COMMAND_ARGS) {
+int shell::basic::echo(CXXSH_COMMAND_ARGS_DEV) {
     sh->stream() << std::flush;
     for (auto a : args) {
         sh->write(a + ' ');
@@ -13,13 +13,13 @@ int shell::basic::echo(CXXSH_COMMAND_ARGS) {
     return 0;
 }
 
-int shell::basic::exit(CXXSH_COMMAND_ARGS) {
+int shell::basic::exit(CXXSH_COMMAND_ARGS_DEV) {
     sh->writeln("Exiting interpreter...");
     sh->exit();
     return 0;
 }
 
-int shell::basic::clear(CXXSH_COMMAND_ARGS) {
+int shell::basic::clear(CXXSH_COMMAND_ARGS_DEV) {
     auto& os = sh->stream();
     auto cls = [](){
         #ifdef _WIN32
@@ -38,7 +38,7 @@ int shell::basic::clear(CXXSH_COMMAND_ARGS) {
         os << "\033[2J\033[H";
         cls();
     } else {
-        sh->write("Unknown or unsupported stream type.");
+        sh->writeln("Unknown or unsupported stream type.");
         os.clear();
         return 1;
     }
@@ -46,11 +46,11 @@ int shell::basic::clear(CXXSH_COMMAND_ARGS) {
     return 0;
 }
 
-int shell::basic::alias(CXXSH_COMMAND_ARGS) {
+int shell::basic::alias(CXXSH_COMMAND_ARGS_DEV) {
     std::string alias_cmd = parse(line).other(2);
     std::string alias_name = args[0];
     
-    sh->add_command(alias_name, [alias_cmd](CXXSH_COMMAND_ARGS){
+    sh->add_command(alias_name, [alias_cmd](CXXSH_COMMAND_ARGS_DEV){
         if (args.size() > 0)
         return sh->exec(alias_cmd + " " + Parser::join(args));
         else
@@ -61,7 +61,7 @@ int shell::basic::alias(CXXSH_COMMAND_ARGS) {
     return 0;
 }
 
-int shell::basic::system(CXXSH_COMMAND_ARGS) {
+int shell::basic::system(CXXSH_COMMAND_ARGS_DEV) {
     if (args.size() > 0)
     return std::system(parse(line).other().c_str());
     else {

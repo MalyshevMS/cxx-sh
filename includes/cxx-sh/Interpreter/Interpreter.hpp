@@ -5,10 +5,11 @@
 #include <functional>
 #include <cxx-sh/Parser/Parser.hpp>
 
-#define CXXSH_COMMAND_ARGS class Interpreter* sh, cr<args_t> args, cr<flags_t> flags, cr<line_t> line
+#define CXXSH_COMMAND_ARGS_DEV class Interpreter* sh, cr<args_t> args, cr<flags_t> flags, cr<line_t> line
+#define CXXSH_COMMAND_ARGS shell::Interpreter* sh, shell::cr<shell::args_t> args, shell::cr<shell::flags_t> flags, shell::cr<shell::line_t> line
 
 namespace shell {
-    using command_f = std::function<int (CXXSH_COMMAND_ARGS)>;
+    using command_f = std::function<int (CXXSH_COMMAND_ARGS_DEV)>;
     
     class Interpreter {
     private:
@@ -27,11 +28,11 @@ namespace shell {
 
     // Basic commands
     namespace basic {
-        int echo    (CXXSH_COMMAND_ARGS);
-        int clear   (CXXSH_COMMAND_ARGS);
-        int exit    (CXXSH_COMMAND_ARGS);
-        int alias   (CXXSH_COMMAND_ARGS);
-        int system  (CXXSH_COMMAND_ARGS);
+        int echo    (CXXSH_COMMAND_ARGS_DEV);
+        int clear   (CXXSH_COMMAND_ARGS_DEV);
+        int exit    (CXXSH_COMMAND_ARGS_DEV);
+        int alias   (CXXSH_COMMAND_ARGS_DEV);
+        int system  (CXXSH_COMMAND_ARGS_DEV);
     
         inline std::vector<cmd_t> names = {
             "echo",
