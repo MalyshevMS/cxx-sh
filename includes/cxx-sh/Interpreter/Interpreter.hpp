@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <iostream>
 #include <unordered_map>
 #include <functional>
 #include <cxx-sh/Parser/Parser.hpp>
@@ -15,15 +16,20 @@ namespace shell {
     private:
         std::ostream& os;
         std::unordered_map<cmd_t, command_f> command_map;
+        bool running = false;
     public:
-        Interpreter(std::ostream& os);
+        Interpreter(std::ostream& os = std::cout);
 
         int exec(cr<line_t> line);
         void add_command(cr<cmd_t>, cr<command_f>);
+        
         void write(cr<line_t> line = "") { os << line; };
         void writeln(cr<line_t> line = "") { os << line << std::endl; };
         std::ostream& stream() { return os; };
-        void exit() { std::exit(0); }
+
+        void run() { running = true; }
+        void exit() { running = false; }
+        bool is_running() { return running; }
     };
 
     // Basic commands
