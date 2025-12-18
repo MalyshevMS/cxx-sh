@@ -13,7 +13,7 @@ namespace shell {
         std::mutex mtx;
         line_t invite = ">";
     public:
-        Shell();
+        Shell(cr<line_t> cwd);
         Shell(Interpreter& other);
         void run();
         void set_invite(cr<line_t> invite);

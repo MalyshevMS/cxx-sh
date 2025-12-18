@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 int shell::basic::echo(CXXSH_COMMAND_ARGS_DEV) {
     sh->stream() << std::flush;
@@ -65,7 +66,65 @@ int shell::basic::system(CXXSH_COMMAND_ARGS_DEV) {
     if (args.size() > 0)
     return std::system(parse(line).other().c_str());
     else {
-        sh->writeln("Too few arguments.");
+        sh->writeln("Usage:");
+        sh->writeln("\t system <command to be executed in system shell>");
         return 1;
+    }
+}
+
+int shell::basic::file(CXXSH_COMMAND_ARGS) {
+    auto usage = [sh](){
+        sh->writeln("Usage:");
+        sh->writeln("\t file read <input> [output=stdout]");
+        sh->writeln("\t file exec <input>");
+    };
+
+    auto open_stream = [sh](cr<line_t> input)->std::ifstream&{
+        auto ifs = new std::ifstream();
+
+        if (!std::filesystem::exists(input)) {
+            sh->writeln("file not exists: '" + input + "'.");
+        }
+        else ifs->open(input, std::ios::app);
+
+        return *ifs;
+    };
+
+    if (args.size() < 2) {
+        usage();
+        return 1;
+    }
+
+    if (args[0] == "read") {
+        line_t s_input = sh->get_cwd() + args[1];
+        line_t s_output;
+
+        if (args.size() < 3) s_output = "stdout";
+        else s_output = args[2];
+
+        std::ostream* os;
+        std::ifstream& ifs = open_stream(s_input);
+
+        if (s_output == "stdout") {
+            os = &std::cout;
+        } else {
+            os = new std::ofstream(s_output);
+        }
+
+        try {
+            if (std::filesystem::file_size(s_input) == 0)  // empty file
+                (*os) << std::flush;
+            else  (*os) << ifs.rdbuf() << std::flush;
+        } catch (...) { return 3; } // broken ostream
+        return 0;
+    } else if (args[0] == "exec") {
+        auto input = args[1];
+        auto& stream = open_stream(input);
+        sh->from_stream(stream);
+        return 0;
+    } else {
+        sh->writeln("Unknown option: '" + args[0] + ".");
+        usage();
+        return -1;
     }
 }

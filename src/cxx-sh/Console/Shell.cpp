@@ -1,7 +1,7 @@
 #include <cxx-sh/Console/Shell.hpp>
 
-shell::Shell::Shell() {
-    sh = new Interpreter(std::cout);
+shell::Shell::Shell(cr<line_t> cwd) {
+    sh = new Interpreter(cwd, std::cout);
 }
 
 shell::Shell::Shell(Interpreter& other) {
@@ -18,10 +18,10 @@ void shell::Shell::run() {
     int code = 0;
     sh->run();
     while (sh->is_running()) {
-        sh->write("[" + std::to_string(code) + "]" + invite + " ");
+        sh->write("(" + sh->get_cwd() + ")[" + std::to_string(code) + "]" + invite + " ");
+
         std::getline(std::cin, line);
-        if (!line.empty())
-        code = sh->exec(line);
+        if (!line.empty()) code = sh->exec(line);
     }
 }
 

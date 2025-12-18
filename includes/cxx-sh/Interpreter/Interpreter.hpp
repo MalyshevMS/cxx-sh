@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <istream>
 #include <iostream>
 #include <unordered_map>
 #include <functional>
@@ -16,20 +17,24 @@ namespace shell {
     private:
         std::ostream& os;
         std::unordered_map<cmd_t, command_f> command_map;
+        std::string cwd = "~/";
         bool running = false;
     public:
-        Interpreter(std::ostream& os = std::cout);
+        Interpreter(cr<line_t> cwd, std::ostream& os = std::cout);
 
         int exec(cr<line_t> line);
         void add_command(cr<cmd_t>, cr<command_f>);
+        std::vector<int> from_stream(std::istream& is);
         
         void write(cr<line_t> line = "") { os << line; };
         void writeln(cr<line_t> line = "") { os << line << std::endl; };
-        std::ostream& stream() { return os; };
+        std::ostream& stream() const { return os; };
+
+        std::string get_cwd();
 
         void run() { running = true; }
         void exit() { running = false; }
-        bool is_running() { return running; }
+        bool is_running() const { return running; }
     };
 
     // Basic commands
@@ -39,13 +44,15 @@ namespace shell {
         int exit    (CXXSH_COMMAND_ARGS_DEV);
         int alias   (CXXSH_COMMAND_ARGS_DEV);
         int system  (CXXSH_COMMAND_ARGS_DEV);
+        int file    (CXXSH_COMMAND_ARGS_DEV);
     
         inline std::vector<cmd_t> names = {
             "echo",
             "clear",
             "exit",
             "alias",
-            "system"
+            "system",
+            "file"
         };
 
         inline std::vector<command_f> functions = {
@@ -53,7 +60,8 @@ namespace shell {
             clear,
             exit,
             alias,
-            system
+            system,
+            file
         };
     };
 };
