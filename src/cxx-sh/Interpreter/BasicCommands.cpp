@@ -128,3 +128,35 @@ int shell::basic::file(CXXSH_COMMAND_ARGS) {
         return -1;
     }
 }
+
+auto name_only = [](const std::string& path) {
+    if (std::filesystem::is_directory(path))
+        return std::filesystem::path(path).parent_path().filename().string() + "/";
+    else return std::filesystem::path(path).filename().string();
+};
+
+auto ls_dir = [](const std::string& dir){
+    std::vector<std::string> res;
+    for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+        res.push_back(name_only(entry.path()));
+    }
+    return res;
+};
+
+int shell::basic::ls(CXXSH_COMMAND_ARGS) {
+    std::string dir;
+    if (args.size() == 0)  // current dir (cwd)
+        dir = sh->get_cwd();
+    else dir = args[0];
+
+    sh->writeln("Directory '" + name_only(dir) + "':");
+    for (auto i : ls_dir(dir)) {
+        sh->writeln("\t" + i);
+    }
+    return 0;
+}
+
+int shell::basic::cd(CXXSH_COMMAND_ARGS) {
+    // TODO: implement this
+    return 0;
+}

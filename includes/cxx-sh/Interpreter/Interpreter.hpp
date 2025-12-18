@@ -45,6 +45,8 @@ namespace shell {
         int alias   (CXXSH_COMMAND_ARGS_DEV);
         int system  (CXXSH_COMMAND_ARGS_DEV);
         int file    (CXXSH_COMMAND_ARGS_DEV);
+        int cd      (CXXSH_COMMAND_ARGS_DEV);
+        int ls      (CXXSH_COMMAND_ARGS_DEV);
     
         inline std::vector<cmd_t> names = {
             "echo",
@@ -52,7 +54,9 @@ namespace shell {
             "exit",
             "alias",
             "system",
-            "file"
+            "file",
+            "cd",
+            "ls"
         };
 
         inline std::vector<command_f> functions = {
@@ -61,7 +65,9 @@ namespace shell {
             exit,
             alias,
             system,
-            file
+            file,
+            cd,
+            ls
         };
     };
 };
