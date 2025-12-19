@@ -11,7 +11,8 @@ namespace shell {
         vec<line_t> list_directory (cr<fs::path> dir);
         line_t name_only(cr<fs::path> p);
         bool is_dir(cr<fs::path> p);
+        bool is_file(cr<fs::path> p);
         bool is_subdir(cr<fs::path> dir, cr<fs::path> subdir);
-        fs::path expand(cr<line_t> p, cr<line_t> cwd);
+        fs::path expand(cr<line_t> cwd, cr<line_t> p);
     };
 };

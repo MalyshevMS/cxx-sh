@@ -82,12 +82,20 @@ int shell::basic::file(CXXSH_COMMAND_ARGS) {
         sh->writeln("\t file exec <input>");
     };
 
-    auto open_stream = [sh](cr<line_t> input) {
+    auto open_istream = [sh](cr<line_t> input) {
         std::ifstream ifs(input, std::ios::in);
         if (!ifs.is_open()) {
-            sh->writeln("file not exists: '" + input + "'.");
+            sh->writeln("File not exists: '" + input + "'.");
         }
         return ifs;
+    };
+
+    auto open_ostream = [sh](cr<line_t> output) {
+        std::ofstream ofs(output, std::ios::out);
+        if (!ofs.is_open()) {
+            sh->writeln("File not exists: '" + output + "'.");
+        }
+        return ofs;
     };
 
     if (args.size() < 2) {
@@ -96,43 +104,41 @@ int shell::basic::file(CXXSH_COMMAND_ARGS) {
     }
 
     if (args[0] == "read") {
-        line_t s_input = sh->get_cwd() + args[1];
-        line_t s_output;
+        line_t s_input = file::expand(sh->get_cwd(), args[1]);
+        line_t s_output = "stdout";
 
-        if (args.size() < 3) s_output = "stdout";
-        else s_output = args[2];
+        if (args.size() > 2) s_output = file::expand(sh->get_cwd(), args[2]);
 
-        std::ofstream ofs;
-        std::ostream* os = nullptr;
-        std::ifstream ifs = open_stream(s_input);
+        std::istream* isp = nullptr;
+        std::ostream* osp = nullptr;
 
-        if (!ifs.is_open()) return 2;
-
-        if (s_output == "stdout") {
-            os = &std::cout;
-        } else {
-            ofs.open(s_output, std::ios::out);
-            if (!ofs.is_open()) {
-                sh->writeln("Cannot open output: '" + s_output + "'.");
-                return 4;
-            }
-            os = &ofs;
+        if (!file::is_file(s_input)) {
+            sh->writeln("The path '" + s_input + "' is not file.");
+            return 1;
+        }
+        if (!file::is_file(s_output) && s_output != "stdout") {
+            sh->writeln("The path '" + s_output + "' is not file.");
+            return 1;
         }
 
-        try {
-            if (std::filesystem::file_size(s_input) == 0)  // empty file
-                (*os) << std::endl;
-            else  (*os) << ifs.rdbuf() << std::endl;
-        } catch (...) { return 3; } // broken ostream
+        isp = new std::ifstream(open_istream(s_input));
+
+        if (s_output == "stdout") osp = &std::cout;
+        else osp = new std::ofstream(open_ostream(s_output));
+
+        (*osp) << isp->rdbuf() << std::endl;
+
         return 0;
     } else if (args[0] == "exec") {
-        auto input = args[1];
-        std::ifstream stream = open_stream(input);
+        auto input = file::expand(sh->get_cwd(), args[1]);
+
+        std::ifstream stream = open_istream(input);
         if (!stream.is_open()) return 2;
+        
         sh->from_stream(stream);
         return 0;
     } else {
-        sh->writeln("Unknown option: '" + args[0] + ".");
+        sh->writeln("Unknown option: '" + args[0] + "'.");
         usage();
         return -1;
     }

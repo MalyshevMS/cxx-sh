@@ -32,6 +32,10 @@ bool shell::file::is_dir(cr<fs::path> p) {
     return fs::is_directory(p);
 }
 
+bool shell::file::is_file(cr<fs::path> p) {
+    return fs::is_regular_file(p);
+}
+
 bool shell::file::is_subdir(cr<fs::path> dir, cr<fs::path> subdir) {
     try {
         if (!fs::exists(dir) || !fs::is_directory(dir)) return false;
