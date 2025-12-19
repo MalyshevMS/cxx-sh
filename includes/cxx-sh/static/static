@@ -1,6 +1,13 @@
 #pragma once
 
 namespace shell {
-    template <typename _Tp>
-    using cr = const _Tp&; // const ref
+    // const reference
+    template <typename _Tp> using cr = const _Tp&;
+    // `std::vector`
+    template <typename _Tp> using vec = std::vector<_Tp>;
+
+    using args_t = vec<std::string>;
+    using flags_t = vec<std::string>;
+    using cmd_t = std::string;
+    using line_t = std::string;
 };

@@ -6,18 +6,21 @@
 
 namespace shell {
     class Parser {
-        std::string line;
+        line_t line;
         std::vector<std::string> parsed;
 
-        static std::vector<std::string> split(cr<std::string> str, char sep);
     public:
-        Parser(cr<std::string> line);
+        static std::vector<std::string> split(cr<line_t> str, char sep = ' ');
+        static line_t join(std::vector<std::string> strs, char sep = ' ');
+
+        Parser(cr<line_t> line);
         
-        std::string string() const { return line; };
-        std::string command() const;
-        std::vector<std::string> args() const;
-        std::vector<std::string> flags() const;
+        line_t string() const { return line; };
+        line_t other(size_t spaces_count = 1) const; // whole line except the number of spaces given (default 1)
+        cmd_t command() const;
+        args_t args() const;
+        flags_t flags() const;
     };
 
-    static Parser parse(cr<std::string> line) { return Parser(line); }
+    static Parser parse(cr<line_t> line) { return Parser(line); }
 };
