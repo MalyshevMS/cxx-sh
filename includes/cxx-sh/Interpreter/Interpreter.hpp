@@ -30,7 +30,8 @@ namespace shell {
         void writeln(cr<line_t> line = "") { os << line << std::endl; };
         std::ostream& stream() const { return os; };
 
-        std::string get_cwd();
+        line_t get_cwd();
+        void set_cwd(cr<line_t> cwd);
 
         void run() { running = true; }
         void exit() { running = false; }

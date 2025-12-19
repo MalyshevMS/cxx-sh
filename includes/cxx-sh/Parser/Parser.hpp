@@ -5,11 +5,6 @@
 #include <cxx-sh/static/static>
 
 namespace shell {
-    using args_t = std::vector<std::string>;
-    using flags_t = std::vector<std::string>;
-    using cmd_t = std::string;
-    using line_t = std::string;
-
     class Parser {
         line_t line;
         std::vector<std::string> parsed;

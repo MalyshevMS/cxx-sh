@@ -1,11 +1,22 @@
 #include <cxx-sh/Console/Shell.hpp>
+#include <cxx-sh/Filesystem/Filesystem.hpp>
 
 shell::Shell::Shell(cr<line_t> cwd) {
-    sh = new Interpreter(cwd, std::cout);
+    owned_sh = std::make_unique<Interpreter>(cwd, std::cout);
+    sh = owned_sh.get();
 }
 
 shell::Shell::Shell(Interpreter& other) {
     sh = &other;
+}
+
+shell::Shell::~Shell() noexcept {
+    try {
+        if (sh && sh->is_running()) {
+            send_thread("exit");
+        }
+        if (thr.joinable()) thr.join();
+    } catch (...) {}
 }
 
 void shell::Shell::run() {
@@ -18,7 +29,7 @@ void shell::Shell::run() {
     int code = 0;
     sh->run();
     while (sh->is_running()) {
-        sh->write("(" + sh->get_cwd() + ")[" + std::to_string(code) + "]" + invite + " ");
+        sh->write("(" + file::name_only(sh->get_cwd()) + ")[" + std::to_string(code) + "]" + invite + " ");
 
         std::getline(std::cin, line);
         if (!line.empty()) code = sh->exec(line);
@@ -26,10 +37,8 @@ void shell::Shell::run() {
 }
 
 void shell::Shell::run_thread() {
-    if (sh->is_running()) return;
-    
+    if (sh->is_running() || thr.joinable()) return;
     thr = std::thread(&Shell::run, this);
-    thr.detach();
 }
 
 void shell::Shell::send_thread(cr<line_t> line) {

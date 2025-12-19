@@ -77,6 +77,8 @@ shell::line_t shell::Parser::other(size_t spaces_count) const {
 
 shell::line_t shell::Parser::join(std::vector<std::string> strs, char sep) {
     std::stringstream ss;
-    for (auto i : strs) ss << i << sep;
+    if (strs.empty()) return std::string();
+    ss << strs[0];
+    for (size_t i = 1; i < strs.size(); ++i) ss << sep << strs[i];
     return ss.str();
 }

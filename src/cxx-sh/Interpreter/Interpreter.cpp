@@ -33,6 +33,11 @@ std::string shell::Interpreter::get_cwd() {
     return cwd;
 }
 
+void shell::Interpreter::set_cwd(cr<line_t> cwd) {
+    this->cwd = cwd;
+    get_cwd();
+}
+
 std::vector<int> shell::Interpreter::from_stream(std::istream& is) {
     std::vector<int> result_codes;
     

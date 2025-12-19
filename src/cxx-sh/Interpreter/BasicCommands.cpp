@@ -1,8 +1,11 @@
 #include <cxx-sh/Interpreter/Interpreter.hpp>
+#include <cxx-sh/Filesystem/Filesystem.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <algorithm>
+#include <cstdlib>
 
 int shell::basic::echo(CXXSH_COMMAND_ARGS_DEV) {
     sh->stream() << std::flush;
@@ -79,15 +82,12 @@ int shell::basic::file(CXXSH_COMMAND_ARGS) {
         sh->writeln("\t file exec <input>");
     };
 
-    auto open_stream = [sh](cr<line_t> input)->std::ifstream&{
-        auto ifs = new std::ifstream();
-
-        if (!std::filesystem::exists(input)) {
+    auto open_stream = [sh](cr<line_t> input) {
+        std::ifstream ifs(input, std::ios::in);
+        if (!ifs.is_open()) {
             sh->writeln("file not exists: '" + input + "'.");
         }
-        else ifs->open(input, std::ios::app);
-
-        return *ifs;
+        return ifs;
     };
 
     if (args.size() < 2) {
@@ -102,24 +102,33 @@ int shell::basic::file(CXXSH_COMMAND_ARGS) {
         if (args.size() < 3) s_output = "stdout";
         else s_output = args[2];
 
-        std::ostream* os;
-        std::ifstream& ifs = open_stream(s_input);
+        std::ofstream ofs;
+        std::ostream* os = nullptr;
+        std::ifstream ifs = open_stream(s_input);
+
+        if (!ifs.is_open()) return 2;
 
         if (s_output == "stdout") {
             os = &std::cout;
         } else {
-            os = new std::ofstream(s_output);
+            ofs.open(s_output, std::ios::out);
+            if (!ofs.is_open()) {
+                sh->writeln("Cannot open output: '" + s_output + "'.");
+                return 4;
+            }
+            os = &ofs;
         }
 
         try {
             if (std::filesystem::file_size(s_input) == 0)  // empty file
-                (*os) << std::flush;
-            else  (*os) << ifs.rdbuf() << std::flush;
+                (*os) << std::endl;
+            else  (*os) << ifs.rdbuf() << std::endl;
         } catch (...) { return 3; } // broken ostream
         return 0;
     } else if (args[0] == "exec") {
         auto input = args[1];
-        auto& stream = open_stream(input);
+        std::ifstream stream = open_stream(input);
+        if (!stream.is_open()) return 2;
         sh->from_stream(stream);
         return 0;
     } else {
@@ -129,34 +138,47 @@ int shell::basic::file(CXXSH_COMMAND_ARGS) {
     }
 }
 
-auto name_only = [](const std::string& path) {
-    if (std::filesystem::is_directory(path))
-        return std::filesystem::path(path).parent_path().filename().string() + "/";
-    else return std::filesystem::path(path).filename().string();
-};
-
-auto ls_dir = [](const std::string& dir){
-    std::vector<std::string> res;
-    for (const auto& entry : std::filesystem::directory_iterator(dir)) {
-        res.push_back(name_only(entry.path()));
-    }
-    return res;
-};
-
 int shell::basic::ls(CXXSH_COMMAND_ARGS) {
-    std::string dir;
-    if (args.size() == 0)  // current dir (cwd)
-        dir = sh->get_cwd();
-    else dir = args[0];
+    fs::path target;
+    if (args.size() == 0) target = file::expand(sh->get_cwd(), "");
+    else target = file::expand(sh->get_cwd(), args[0]);
 
-    sh->writeln("Directory '" + name_only(dir) + "':");
-    for (auto i : ls_dir(dir)) {
+    if (!fs::exists(target)) {
+        sh->writeln("No such file or directory: '" + (args.size() ? args[0] : target.string()) + "'.");
+        return 2;
+    }
+
+    if (!file::is_dir(target)) {
+        sh->writeln("Not a directory: '" + (args.size() ? args[0] : target.string()) + "'.");
+        return 3;
+    }
+
+    sh->writeln("Directory '" + file::name_only(target) + "':");
+    for (auto &i : file::list_directory(target)) {
         sh->writeln("\t" + i);
     }
     return 0;
 }
 
 int shell::basic::cd(CXXSH_COMMAND_ARGS) {
-    // TODO: implement this
+    if (args.size() == 0) {
+        // no arg: go to HOME if available
+        const char* home = std::getenv("HOME");
+        if (home) { sh->set_cwd(std::string(home)); return 0; }
+        sh->writeln("No path specified and $HOME not set.");
+        return 1;
+    }
+
+    fs::path newpath = file::expand(sh->get_cwd(), args[0]);
+    try {
+        newpath = fs::weakly_canonical(newpath);
+    } catch (...) {}
+
+    if (!fs::exists(newpath) || !fs::is_directory(newpath)) {
+        sh->writeln("No such file or directory: '" + args[0] + "'.");
+        return 2;
+    }
+
+    sh->set_cwd(newpath.string());
     return 0;
 }
