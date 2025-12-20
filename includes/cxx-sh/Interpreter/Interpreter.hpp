@@ -22,6 +22,7 @@ namespace shell {
     public:
         Interpreter(cr<line_t> cwd, std::ostream& os = std::cout);
 
+        code_t run(cr<line_t> line);
         int exec(cr<line_t> line);
         void add_command(cr<cmd_t>, cr<command_f>);
         std::vector<int> from_stream(std::istream& is);

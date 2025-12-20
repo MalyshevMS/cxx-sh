@@ -161,8 +161,9 @@ int shell::basic::ls(CXXSH_COMMAND_ARGS) {
 
     sh->writeln("Directory '" + file::name_only(target) + "':");
     for (auto &i : file::list_directory(target)) {
-        sh->writeln("\t" + i);
+        sh->write(i + " ");
     }
+    sh->writeln();
     return 0;
 }
 

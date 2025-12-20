@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 namespace shell {
     // const reference
     template <typename _Tp> using cr = const _Tp&;
@@ -10,4 +13,5 @@ namespace shell {
     using flags_t = vec<std::string>;
     using cmd_t = std::string;
     using line_t = std::string;
+    using code_t = std::string;
 };

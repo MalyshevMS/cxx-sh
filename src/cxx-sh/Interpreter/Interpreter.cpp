@@ -1,4 +1,5 @@
 #include <cxx-sh/Interpreter/Interpreter.hpp>
+#include <cxx-sh/Parser/Pipeline.hpp>
 
 shell::Interpreter::Interpreter(cr<line_t> exePath, std::ostream& os) : os(os) {
     // Apply basic commands
@@ -25,6 +26,22 @@ int shell::Interpreter::exec(cr<line_t> line) {
         writeln("Command not found: '" + prs.command() + "'.");
         return 127;
     }
+}
+
+shell::code_t shell::Interpreter::run(cr<line_t> line) {
+    auto p = parse_multi(line);
+    std::vector<int> codes(p.commands().size());
+
+    for (size_t i = 0; i < codes.size(); i++) {
+        codes[i] = exec(p.lines()[i]);
+    }
+
+    code_t result = std::to_string(codes[0]);
+    for (size_t i = 1; i < codes.size(); i++) {
+        result += p.seps()[i - 1] + std::to_string(codes[i]);
+    }
+
+    return result;
 }
 
 std::string shell::Interpreter::get_cwd() {

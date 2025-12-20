@@ -7,6 +7,7 @@ project(${PROJECT_NAME} CXX)
 set(CXX_SH_INCLUDES 
     includes/cxx-sh/Core.hpp
     includes/cxx-sh/Parser/Parser.hpp
+    includes/cxx-sh/Parser/Pipeline.hpp
     includes/cxx-sh/Interpreter/Interpreter.hpp
     includes/cxx-sh/Console/Shell.hpp
     includes/cxx-sh/Filesystem/Filesystem.hpp
@@ -15,6 +16,7 @@ set(CXX_SH_INCLUDES
 set(CXX_SH_SOURCES
     src/cxx-sh/Core.cpp
     src/cxx-sh/Parser/Parser.cpp
+    src/cxx-sh/Parser/Pipeline.cpp
     src/cxx-sh/Interpreter/Interpreter.cpp
     src/cxx-sh/Interpreter/BasicCommands.cpp
     src/cxx-sh/Console/Shell.cpp

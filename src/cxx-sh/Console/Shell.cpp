@@ -26,13 +26,13 @@ void shell::Shell::run() {
     }
     
     line_t line;
-    int code = 0;
+    code_t code = "0";
     sh->run();
     while (sh->is_running()) {
-        sh->write("(" + file::name_only(sh->get_cwd()) + ")[" + std::to_string(code) + "]" + invite + " ");
+        sh->write("(" + file::name_only(sh->get_cwd()) + ")[" + code + "]" + invite + " ");
 
         std::getline(std::cin, line);
-        if (!line.empty()) code = sh->exec(line);
+        if (!line.empty()) code = sh->run(line);
     }
 }
 
