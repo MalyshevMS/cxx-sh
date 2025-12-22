@@ -26,13 +26,13 @@ void shell::Shell::run() {
     }
     
     line_t line;
-    int code = 0;
+    code_t code = "0";
     sh->run();
     while (sh->is_running()) {
-        sh->write("(" + file::name_only(sh->get_cwd()) + ")[" + std::to_string(code) + "]" + invite + " ");
+        sh->write("(" + file::name_only(sh->get_cwd()) + ")[" + code + "]" + invite + " ");
 
         std::getline(std::cin, line);
-        if (!line.empty()) code = sh->exec(line);
+        if (!line.empty()) code = sh->run(line);
     }
 }
 
@@ -58,10 +58,10 @@ void shell::Shell::stop_thread() {
     std::cout << "Press ENTER to exit shell..." << std::flush;
 }
 
-int shell::Shell::send(cr<line_t> line) {
-    if (!sh->is_running()) return -3;
+shell::code_t shell::Shell::send(cr<line_t> line) {
+    if (!sh->is_running()) return "-3";
 
-    return sh->exec(line);
+    return sh->run(line);
 }
 
 void shell::Shell::set_invite(cr<line_t> invite) {

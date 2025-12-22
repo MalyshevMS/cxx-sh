@@ -26,7 +26,7 @@ namespace shell {
         
         void run();
         void set_invite(cr<line_t> invite);
-        int send(cr<line_t> line);
+        code_t send(cr<line_t> line);
 
         void run_thread();
         void send_thread(cr<line_t> line);
