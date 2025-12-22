@@ -11,7 +11,7 @@
 #define CXXSH_COMMAND_ARGS shell::Interpreter* sh, shell::cr<shell::args_t> args, shell::cr<shell::flags_t> flags, shell::cr<shell::line_t> line
 
 namespace shell {
-    using command_f = std::function<int (CXXSH_COMMAND_ARGS_DEV)>;
+    using command_f = std::function<code_t (CXXSH_COMMAND_ARGS_DEV)>;
     
     class Interpreter {
     private:
@@ -23,9 +23,9 @@ namespace shell {
         Interpreter(cr<line_t> cwd, std::ostream& os = std::cout);
 
         code_t run(cr<line_t> line);
-        int exec(cr<line_t> line);
+        code_t exec(cr<line_t> line);
         void add_command(cr<cmd_t>, cr<command_f>);
-        std::vector<int> from_stream(std::istream& is);
+        std::vector<code_t> from_stream(std::istream& is);
         
         void write(cr<line_t> line = "") { os << line; };
         void writeln(cr<line_t> line = "") { os << line << std::endl; };
@@ -41,14 +41,14 @@ namespace shell {
 
     // Basic commands
     namespace basic {
-        int echo    (CXXSH_COMMAND_ARGS_DEV);
-        int clear   (CXXSH_COMMAND_ARGS_DEV);
-        int exit    (CXXSH_COMMAND_ARGS_DEV);
-        int alias   (CXXSH_COMMAND_ARGS_DEV);
-        int system  (CXXSH_COMMAND_ARGS_DEV);
-        int file    (CXXSH_COMMAND_ARGS_DEV);
-        int cd      (CXXSH_COMMAND_ARGS_DEV);
-        int ls      (CXXSH_COMMAND_ARGS_DEV);
+        code_t echo    (CXXSH_COMMAND_ARGS_DEV);
+        code_t clear   (CXXSH_COMMAND_ARGS_DEV);
+        code_t exit    (CXXSH_COMMAND_ARGS_DEV);
+        code_t alias   (CXXSH_COMMAND_ARGS_DEV);
+        code_t system  (CXXSH_COMMAND_ARGS_DEV);
+        code_t file    (CXXSH_COMMAND_ARGS_DEV);
+        code_t cd      (CXXSH_COMMAND_ARGS_DEV);
+        code_t ls      (CXXSH_COMMAND_ARGS_DEV);
     
         inline std::vector<cmd_t> names = {
             "echo",

@@ -58,10 +58,10 @@ void shell::Shell::stop_thread() {
     std::cout << "Press ENTER to exit shell..." << std::flush;
 }
 
-int shell::Shell::send(cr<line_t> line) {
-    if (!sh->is_running()) return -3;
+shell::code_t shell::Shell::send(cr<line_t> line) {
+    if (!sh->is_running()) return "-3";
 
-    return sh->exec(line);
+    return sh->run(line);
 }
 
 void shell::Shell::set_invite(cr<line_t> invite) {

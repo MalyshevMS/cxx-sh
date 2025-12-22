@@ -16,29 +16,29 @@ void shell::Interpreter::add_command(cr<cmd_t> cmd, cr<command_f> function)
     command_map[cmd] = function;
 }
 
-int shell::Interpreter::exec(cr<line_t> line) {
-    if (!is_running()) return -1;
+shell::code_t shell::Interpreter::exec(cr<line_t> line) {
+    if (!is_running()) return "-1";
     auto prs = parse(line);
     auto it = command_map.find(prs.command());
     if (it != command_map.end()) {
         return it->second(this, prs.args(), prs.flags(), prs.string());
     } else {
         writeln("Command not found: '" + prs.command() + "'.");
-        return 127;
+        return "127";
     }
 }
 
 shell::code_t shell::Interpreter::run(cr<line_t> line) {
     auto p = parse_multi(line);
-    std::vector<int> codes(p.commands().size());
+    std::vector<code_t> codes(p.commands().size());
 
     for (size_t i = 0; i < codes.size(); i++) {
         codes[i] = exec(p.lines()[i]);
     }
 
-    code_t result = std::to_string(codes[0]);
+    code_t result = codes[0];
     for (size_t i = 1; i < codes.size(); i++) {
-        result += p.seps()[i - 1] + std::to_string(codes[i]);
+        result += p.seps()[i - 1] + codes[i];
     }
 
     return result;
@@ -55,11 +55,11 @@ void shell::Interpreter::set_cwd(cr<line_t> cwd) {
     get_cwd();
 }
 
-std::vector<int> shell::Interpreter::from_stream(std::istream& is) {
-    std::vector<int> result_codes;
+std::vector<shell::code_t> shell::Interpreter::from_stream(std::istream& is) {
+    std::vector<code_t> result_codes;
     
     line_t line;
-    while(std::getline(is, line)) result_codes.push_back(exec(line));
+    while(std::getline(is, line)) result_codes.push_back(run(line));
 
     return result_codes;
 }
