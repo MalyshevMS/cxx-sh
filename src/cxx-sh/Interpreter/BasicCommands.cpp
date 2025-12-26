@@ -136,11 +136,13 @@ shell::code_t shell::basic::file(CXXSH_COMMAND_ARGS) {
         if (!stream.is_open()) return "2";
         
         auto codes = sh->from_stream(stream);
-        code_t res = codes[0];
+        code_t res;
 
-        for(int i = 1; i < codes.size(); i++) {
-            res += ';' + codes[i];
+        for(int i = 0; i < codes.size() - 1; i++) {
+            if (codes[i] != "#")
+            res += codes[i] + ';';
         }
+        res += codes[codes.size() - 1];
 
         return res;
     } else {

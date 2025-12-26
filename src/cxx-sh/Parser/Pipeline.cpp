@@ -4,10 +4,11 @@
 
 shell::vec<shell::line_t> shell::Pipeline::split(cr<line_t> str, vec<char> seps) {
     vec<line_t> result;
-    std::string current;
+    line_t current;
     bool added = false;
 
     for (char c : str) {
+        if (c == '#') break; // comment
         for (char s : seps) {
             if (c == s) {
                 if (!current.empty())
@@ -32,6 +33,14 @@ shell::vec<shell::line_t> shell::Pipeline::split(cr<line_t> str, vec<char> seps)
 
 shell::Pipeline::Pipeline(cr<line_t> line) {
     m_lines = split(line, { ';', '&', '|' });
+    if (m_lines.size() == 0) { // comment line
+        comment = true;
+        m_commands = {};
+        m_args = {};
+        m_flags = {};
+        m_seps = {};
+        return;
+    }
     
     for (auto l : m_lines) {
         auto p = parse(l);

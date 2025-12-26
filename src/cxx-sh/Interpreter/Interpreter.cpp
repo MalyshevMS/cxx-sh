@@ -30,13 +30,18 @@ shell::code_t shell::Interpreter::exec(cr<line_t> line) {
 
 shell::code_t shell::Interpreter::run(cr<line_t> line) {
     auto p = parse_multi(line);
+
+    if (p.is_comment()) return "#";
+
     std::vector<code_t> codes(p.commands().size());
 
     for (size_t i = 0; i < codes.size(); i++) {
         codes[i] = exec(p.lines()[i]);
     }
 
-    code_t result = codes[0];
+
+    code_t result = "0";
+    if (codes.size() > 0) result = codes[0];
     for (size_t i = 1; i < codes.size(); i++) {
         result += p.seps()[i - 1] + codes[i];
     }

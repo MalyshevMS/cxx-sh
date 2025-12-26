@@ -19,15 +19,11 @@ shell::Shell::~Shell() noexcept {
     } catch (...) {}
 }
 
-void shell::Shell::run() {
-    if (sh->is_running()) {
-        sh->writeln("Aborted attempt to run shell twice.");
-        return;
-    }
-    
+void shell::Shell::run() {    
+    if (!sh->is_running()) sh->run();
+
     line_t line;
     code_t code = "0";
-    sh->run();
     while (sh->is_running()) {
         sh->write("(" + file::name_only(sh->get_cwd()) + ")[" + code + "]" + invite + " ");
 

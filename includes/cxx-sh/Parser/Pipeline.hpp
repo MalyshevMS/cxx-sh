@@ -11,6 +11,7 @@ namespace shell {
         vec<args_t> m_args;
         vec<flags_t> m_flags;
         vec<char> m_seps;
+        bool comment = false;
     public:
         vec<line_t> split(cr<line_t> str, vec<char> seps);
         Pipeline(cr<line_t> line);
@@ -20,6 +21,7 @@ namespace shell {
         vec<args_t> args();
         vec<flags_t> flags();
         vec<char> seps();
+        bool is_comment() { return comment; }
     };
 
     Pipeline parse_multi(cr<line_t> line);
