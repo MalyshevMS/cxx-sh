@@ -18,7 +18,7 @@ shell::code_t shell::basic::echo(CXXSH_COMMAND_ARGS_DEV) {
 }
 
 shell::code_t shell::basic::exit(CXXSH_COMMAND_ARGS_DEV) {
-    sh->writeln("Exiting interpreter...");
+    // sh->writeln("Exiting interpreter...");
     sh->exit();
     return "0";
 }

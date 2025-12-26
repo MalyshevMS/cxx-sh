@@ -5,6 +5,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <functional>
+#include <queue>
 #include <cxx-sh/Parser/Parser.hpp>
 
 #define CXXSH_COMMAND_ARGS_DEV class Interpreter* sh, cr<args_t> args, cr<flags_t> flags, cr<line_t> line
@@ -18,11 +19,14 @@ namespace shell {
         std::ostream& os;
         std::unordered_map<cmd_t, command_f> command_map;
         std::string cwd = "~/";
+        std::queue<line_t> queue;
         bool running = false;
     public:
         Interpreter(cr<line_t> cwd, std::ostream& os = std::cout);
 
         code_t run(cr<line_t> line);
+        void add_queue(cr<line_t> line);
+        vec<code_t> exec_queue();
         code_t exec(cr<line_t> line);
         void add_command(cr<cmd_t>, cr<command_f>);
         std::vector<code_t> from_stream(std::istream& is);

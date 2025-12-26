@@ -14,6 +14,9 @@ namespace shell {
         std::thread thr;
         std::mutex mtx;
         line_t invite = ">";
+        bool skip_shell = false;
+
+        int exec_args(int argc, const char** argv);
     public:
         Shell(const Shell&) = delete;
         Shell& operator=(const Shell&) = delete;
@@ -21,7 +24,7 @@ namespace shell {
         Shell& operator=(Shell&&) = delete;
 
         ~Shell() noexcept;
-        Shell(cr<line_t> cwd);
+        Shell(int argc, char const *argv[]);
         Shell(Interpreter& other);
         
         void run();

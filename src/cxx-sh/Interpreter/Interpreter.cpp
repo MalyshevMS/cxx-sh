@@ -68,3 +68,17 @@ std::vector<shell::code_t> shell::Interpreter::from_stream(std::istream& is) {
 
     return result_codes;
 }
+
+void shell::Interpreter::add_queue(cr<line_t> line) {
+    queue.push(line);
+}
+
+shell::vec<shell::code_t> shell::Interpreter::exec_queue() {
+    vec<code_t> res;
+    while (queue.size() > 0) {
+        auto code = run(queue.front());
+        res.push_back(code);
+        queue.pop();
+    }
+    return res;
+}
