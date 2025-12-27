@@ -7,11 +7,11 @@
 namespace shell {
     class Parser {
         line_t line;
-        std::vector<std::string> parsed;
+        vec<line_t> parsed;
 
     public:
-        static std::vector<std::string> split(cr<line_t> str, char sep = ' ');
-        static line_t join(std::vector<std::string> strs, char sep = ' ');
+        static vec<line_t> split(cr<line_t> str, char sep = ' ');
+        static line_t join(vec<line_t> strs, char sep = ' ');
 
         Parser(cr<line_t> line);
         

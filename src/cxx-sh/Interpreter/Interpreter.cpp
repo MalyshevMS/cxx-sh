@@ -33,7 +33,7 @@ shell::code_t shell::Interpreter::run(cr<line_t> line) {
 
     if (p.is_comment()) return "#";
 
-    std::vector<code_t> codes(p.commands().size());
+    vec<code_t> codes(p.commands().size());
 
     for (size_t i = 0; i < codes.size(); i++) {
         codes[i] = exec(p.lines()[i]);
@@ -49,7 +49,7 @@ shell::code_t shell::Interpreter::run(cr<line_t> line) {
     return result;
 }
 
-std::string shell::Interpreter::get_cwd() {
+shell::line_t shell::Interpreter::get_cwd() {
     if (cwd[cwd.size() - 1] != '/') cwd.push_back('/');
 
     return cwd;
@@ -60,8 +60,8 @@ void shell::Interpreter::set_cwd(cr<line_t> cwd) {
     get_cwd();
 }
 
-std::vector<shell::code_t> shell::Interpreter::from_stream(std::istream& is) {
-    std::vector<code_t> result_codes;
+shell::vec<shell::code_t> shell::Interpreter::from_stream(std::istream& is) {
+    vec<code_t> result_codes;
     
     line_t line;
     while(std::getline(is, line)) result_codes.push_back(run(line));

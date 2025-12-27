@@ -1,9 +1,9 @@
 #include <cxx-sh/Parser/Parser.hpp>
 #include <sstream>
 
-std::vector<std::string> shell::Parser::split(cr<line_t> str, char sep) {
-    std::vector<std::string> result;
-    std::string current;
+shell::vec<shell::line_t> shell::Parser::split(cr<line_t> str, char sep) {
+    vec<line_t> result;
+    line_t current;
     bool opened_quot = false;  // ' (single quot)
     bool opened_quot2 = false; // " (double quot)
 
@@ -67,7 +67,7 @@ shell::flags_t shell::Parser::flags() const {
 }
 
 shell::line_t shell::Parser::other(size_t spaces_count) const {
-    std::string result;
+    line_t result;
     int space_cnt = 0;
     for (int i = 0; i < line.size(); i++) {
         if (line[i] == ' ') {
@@ -81,9 +81,9 @@ shell::line_t shell::Parser::other(size_t spaces_count) const {
     return line;
 }
 
-shell::line_t shell::Parser::join(std::vector<std::string> strs, char sep) {
+shell::line_t shell::Parser::join(shell::vec<shell::line_t> strs, char sep) {
     std::stringstream ss;
-    if (strs.empty()) return std::string();
+    if (strs.empty()) return line_t{};
     ss << strs[0];
     for (size_t i = 1; i < strs.size(); ++i) ss << sep << strs[i];
     return ss.str();

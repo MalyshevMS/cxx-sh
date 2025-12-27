@@ -29,7 +29,7 @@ namespace shell {
         vec<code_t> exec_queue();
         code_t exec(cr<line_t> line);
         void add_command(cr<cmd_t>, cr<command_f>);
-        std::vector<code_t> from_stream(std::istream& is);
+        vec<code_t> from_stream(std::istream& is);
         
         void write(cr<line_t> line = "") { os << line; };
         void writeln(cr<line_t> line = "") { os << line << std::endl; };
@@ -54,7 +54,7 @@ namespace shell {
         code_t cd      (CXXSH_COMMAND_ARGS_DEV);
         code_t ls      (CXXSH_COMMAND_ARGS_DEV);
     
-        inline std::vector<cmd_t> names = {
+        inline vec<cmd_t> names = {
             "echo",
             "clear",
             "exit",
@@ -65,7 +65,7 @@ namespace shell {
             "ls"
         };
 
-        inline std::vector<command_f> functions = {
+        inline vec<command_f> functions = {
             echo,
             clear,
             exit,
