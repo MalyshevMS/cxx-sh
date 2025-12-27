@@ -30,13 +30,18 @@ shell::code_t shell::Interpreter::exec(cr<line_t> line) {
 
 shell::code_t shell::Interpreter::run(cr<line_t> line) {
     auto p = parse_multi(line);
-    std::vector<code_t> codes(p.commands().size());
+
+    if (p.is_comment()) return "#";
+
+    vec<code_t> codes(p.commands().size());
 
     for (size_t i = 0; i < codes.size(); i++) {
         codes[i] = exec(p.lines()[i]);
     }
 
-    code_t result = codes[0];
+
+    code_t result = "0";
+    if (codes.size() > 0) result = codes[0];
     for (size_t i = 1; i < codes.size(); i++) {
         result += p.seps()[i - 1] + codes[i];
     }
@@ -44,7 +49,7 @@ shell::code_t shell::Interpreter::run(cr<line_t> line) {
     return result;
 }
 
-std::string shell::Interpreter::get_cwd() {
+shell::line_t shell::Interpreter::get_cwd() {
     if (cwd[cwd.size() - 1] != '/') cwd.push_back('/');
 
     return cwd;
@@ -55,11 +60,25 @@ void shell::Interpreter::set_cwd(cr<line_t> cwd) {
     get_cwd();
 }
 
-std::vector<shell::code_t> shell::Interpreter::from_stream(std::istream& is) {
-    std::vector<code_t> result_codes;
+shell::vec<shell::code_t> shell::Interpreter::from_stream(std::istream& is) {
+    vec<code_t> result_codes;
     
     line_t line;
     while(std::getline(is, line)) result_codes.push_back(run(line));
 
     return result_codes;
+}
+
+void shell::Interpreter::add_queue(cr<line_t> line) {
+    queue.push(line);
+}
+
+shell::vec<shell::code_t> shell::Interpreter::exec_queue() {
+    vec<code_t> res;
+    while (queue.size() > 0) {
+        auto code = run(queue.front());
+        res.push_back(code);
+        queue.pop();
+    }
+    return res;
 }

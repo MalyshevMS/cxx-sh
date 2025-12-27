@@ -14,4 +14,6 @@ namespace shell {
     using cmd_t = std::string;
     using line_t = std::string;
     using code_t = std::string;
+
+    const line_t version = "0.1";
 };

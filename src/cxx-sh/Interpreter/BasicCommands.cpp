@@ -18,7 +18,7 @@ shell::code_t shell::basic::echo(CXXSH_COMMAND_ARGS_DEV) {
 }
 
 shell::code_t shell::basic::exit(CXXSH_COMMAND_ARGS_DEV) {
-    sh->writeln("Exiting interpreter...");
+    // sh->writeln("Exiting interpreter...");
     sh->exit();
     return "0";
 }
@@ -51,8 +51,8 @@ shell::code_t shell::basic::clear(CXXSH_COMMAND_ARGS_DEV) {
 }
 
 shell::code_t shell::basic::alias(CXXSH_COMMAND_ARGS_DEV) {
-    std::string alias_cmd = parse(line).other(2);
-    std::string alias_name = args[0];
+    line_t alias_cmd = parse(line).other(2);
+    line_t alias_name = args[0];
     
     sh->add_command(alias_name, [alias_cmd](CXXSH_COMMAND_ARGS_DEV){
         if (args.size() > 0)
@@ -136,11 +136,13 @@ shell::code_t shell::basic::file(CXXSH_COMMAND_ARGS) {
         if (!stream.is_open()) return "2";
         
         auto codes = sh->from_stream(stream);
-        code_t res = codes[0];
+        code_t res;
 
-        for(int i = 1; i < codes.size(); i++) {
-            res += ';' + codes[i];
+        for(int i = 0; i < codes.size() - 1; i++) {
+            if (codes[i] != "#")
+            res += codes[i] + ';';
         }
+        res += codes[codes.size() - 1];
 
         return res;
     } else {
@@ -177,7 +179,7 @@ shell::code_t shell::basic::cd(CXXSH_COMMAND_ARGS) {
     if (args.size() == 0) {
         // no arg: go to HOME if available
         const char* home = std::getenv("HOME");
-        if (home) { sh->set_cwd(std::string(home)); return "0"; }
+        if (home) { sh->set_cwd(line_t(home)); return "0"; }
         sh->writeln("No path specified and $HOME not set.");
         return "1";
     }

@@ -1,9 +1,52 @@
 #include <cxx-sh/Console/Shell.hpp>
 #include <cxx-sh/Filesystem/Filesystem.hpp>
+#include <signal.h>
 
-shell::Shell::Shell(cr<line_t> cwd) {
+shell::Shell::Shell(int argc, char const *argv[]) {
+    line_t cwd = fs::current_path() / fs::path();
     owned_sh = std::make_unique<Interpreter>(cwd, std::cout);
     sh = owned_sh.get();
+
+    int code = exec_args(argc, argv);
+    if (code == 0) { // normal launch
+        return;
+    } else if (code == -1) { // exit immedeatly with error
+        std::exit(1);
+    } else if (code == 1) { // do not launch shell
+        skip_shell = true;
+    }
+}
+
+int shell::Shell::exec_args(int argc, const char **argv) {
+    if (argc > 1) {
+        vec<line_t> args;
+        for (int i = 1; i < argc; i++) args.push_back(argv[i]);
+        
+        line_t first = args[0];
+
+        if (first[0] == '-') { // flags
+            if (first == "--version" || first == "-v") {
+                std::cout << "cxxsh " << version << std::endl;
+                return 1;
+            }
+            else if (first == "--exec" || first == "-e") {
+                if (args.size() < 2) {
+                    std::cerr << "Usage: cxxsh " << first << " command_string" << std::endl;
+                    return -1;
+                }
+                sh->add_queue(args[1]);
+                return 0;
+            }
+
+            else {
+                std::cerr << "Incorrect flag." << std::endl;
+                return -1;
+            }
+        } else {
+            sh->add_queue("file exec " + first);
+            return 0;
+        }
+    } else return 0; // no args
 }
 
 shell::Shell::Shell(Interpreter& other) {
@@ -19,15 +62,14 @@ shell::Shell::~Shell() noexcept {
     } catch (...) {}
 }
 
-void shell::Shell::run() {
-    if (sh->is_running()) {
-        sh->writeln("Aborted attempt to run shell twice.");
-        return;
-    }
-    
+void shell::Shell::run() {    
+    if (skip_shell) return;
+    if (!sh->is_running()) sh->run();
+
+    sh->exec_queue();
+
     line_t line;
     code_t code = "0";
-    sh->run();
     while (sh->is_running()) {
         sh->write("(" + file::name_only(sh->get_cwd()) + ")[" + code + "]" + invite + " ");
 

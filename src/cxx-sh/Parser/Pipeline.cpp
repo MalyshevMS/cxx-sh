@@ -2,21 +2,29 @@
 #include <cxx-sh/Parser/Parser.hpp>
 #include <vector>
 
-shell::vec<shell::line_t> shell::Pipeline::split(cr<line_t> str, vec<char> seps) {
+shell::vec<shell::line_t> shell::Pipeline::split(cr<line_t> str, vec<char> seps = { ';', '&', '|' }) {
     vec<line_t> result;
-    std::string current;
+    line_t current;
     bool added = false;
+    bool opened_quot = false;
 
     for (char c : str) {
-        for (char s : seps) {
-            if (c == s) {
-                if (!current.empty())
-                result.push_back(current);
-                current.clear();
-                added = true;
-                break;
+        if (c == '#') break; // comment
+
+        if (c == '"') opened_quot = !opened_quot;
+
+        if (!opened_quot) {
+            for (char s : seps) {
+                if (c == s) {
+                    if (!current.empty())
+                    result.push_back(current);
+                    current.clear();
+                    added = true;
+                    break;
+                }
             }
         }
+
         if (!added) {
             current += c;
         }
@@ -31,7 +39,15 @@ shell::vec<shell::line_t> shell::Pipeline::split(cr<line_t> str, vec<char> seps)
 }
 
 shell::Pipeline::Pipeline(cr<line_t> line) {
-    m_lines = split(line, { ';', '&', '|' });
+    m_lines = split(line);
+    if (m_lines.size() == 0) { // comment line
+        comment = true;
+        m_commands = {};
+        m_args = {};
+        m_flags = {};
+        m_seps = {};
+        return;
+    }
     
     for (auto l : m_lines) {
         auto p = parse(l);
