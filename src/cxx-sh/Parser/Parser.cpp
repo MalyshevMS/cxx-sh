@@ -4,13 +4,19 @@
 std::vector<std::string> shell::Parser::split(cr<line_t> str, char sep) {
     std::vector<std::string> result;
     std::string current;
+    bool opened_quot = false;  // ' (single quot)
+    bool opened_quot2 = false; // " (double quot)
 
     for (char c : str) {
-        if (c == sep) {
+        if (c == sep && !opened_quot && !opened_quot2) {
             if (!current.empty()) {
                 result.push_back(current);
                 current.clear();
             }
+        } else if (c == '\'' && !opened_quot2) {
+            opened_quot = !opened_quot;
+        } else if (c == '\"' && !opened_quot) {
+            opened_quot2 = !opened_quot2;
         } else {
             current += c;
         }
