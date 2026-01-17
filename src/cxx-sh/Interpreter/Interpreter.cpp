@@ -46,6 +46,8 @@ shell::code_t shell::Interpreter::run(cr<line_t> line) {
         result += p.seps()[i - 1] + codes[i];
     }
 
+    add_history(line);
+
     return result;
 }
 

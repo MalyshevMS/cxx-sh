@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-shell::code_t shell::basic::echo(CXXSH_COMMAND_ARGS_DEV) {
+shell::code_t shell::basic::echo(CXXSH_COMMAND_ARGS) {
     sh->stream() << std::flush;
     for (auto a : args) {
         sh->write(a + ' ');
@@ -17,13 +17,13 @@ shell::code_t shell::basic::echo(CXXSH_COMMAND_ARGS_DEV) {
     return "0";
 }
 
-shell::code_t shell::basic::exit(CXXSH_COMMAND_ARGS_DEV) {
+shell::code_t shell::basic::exit(CXXSH_COMMAND_ARGS) {
     // sh->writeln("Exiting interpreter...");
     sh->exit();
     return "0";
 }
 
-shell::code_t shell::basic::clear(CXXSH_COMMAND_ARGS_DEV) {
+shell::code_t shell::basic::clear(CXXSH_COMMAND_ARGS) {
     auto& os = sh->stream();
     auto cls = [](){
         #ifdef _WIN32
@@ -50,11 +50,11 @@ shell::code_t shell::basic::clear(CXXSH_COMMAND_ARGS_DEV) {
     return "0";
 }
 
-shell::code_t shell::basic::alias(CXXSH_COMMAND_ARGS_DEV) {
+shell::code_t shell::basic::alias(CXXSH_COMMAND_ARGS) {
     line_t alias_cmd = parse(line).other(2);
     line_t alias_name = args[0];
     
-    sh->add_command(alias_name, [alias_cmd](CXXSH_COMMAND_ARGS_DEV){
+    sh->add_command(alias_name, [alias_cmd](CXXSH_COMMAND_ARGS){
         if (args.size() > 0)
         return sh->run(alias_cmd + " " + Parser::join(args));
         else
@@ -65,7 +65,7 @@ shell::code_t shell::basic::alias(CXXSH_COMMAND_ARGS_DEV) {
     return "0";
 }
 
-shell::code_t shell::basic::system(CXXSH_COMMAND_ARGS_DEV) {
+shell::code_t shell::basic::system(CXXSH_COMMAND_ARGS) {
     if (args.size() > 0)
     return std::to_string(std::system(parse(line).other().c_str()));
     else {
@@ -195,5 +195,11 @@ shell::code_t shell::basic::cd(CXXSH_COMMAND_ARGS) {
     }
 
     sh->set_cwd(newpath.string());
+    return "0";
+}
+
+shell::code_t shell::basic::history(CXXSH_COMMAND_ARGS) {
+    for (auto i : sh->get_history()) sh->writeln(i);
+
     return "0";
 }
